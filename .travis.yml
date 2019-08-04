@@ -5,12 +5,12 @@ branches:
   - master
 
 sudo: false
-addons:
-  apt:
-    sources:
-    - ppa:snaipewastaken/ppa
-    packages:
-    - criterion-dev
+
+before_install:
+- sudo add-apt-repository ppa:snaipewastaken/ppa -y
+- sudo apt-get update -q
+- sudo apt-get install criterion-dev -y
+
 
 install:
 - "cmake . -DENABLE_TESTS=ON"
