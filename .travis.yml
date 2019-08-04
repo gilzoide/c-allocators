@@ -1,0 +1,24 @@
+language: c
+
+branches:
+  only:
+  - master
+
+sudo: false
+addons:
+  apt:
+    sources:
+    - ppa:snaipewastaken/ppa
+    packages:
+    - criterion-dev
+
+install:
+- "cmake . -DENABLE_TESTS=ON"
+- make
+
+script:
+- ctest
+
+after_failure:
+- cat Testing/Temporary/LastTest.log
+
