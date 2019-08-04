@@ -112,10 +112,7 @@ Test(stack_allocator, peek) {
 	cr_assert_eq(sa_peek(&allocator, alloc_size), ptr);
 	cr_assert_eq(sa_peek(&allocator, 2 * alloc_size), first_ptr);
 
-
-	sa_free(&allocator);
-	cr_assert_eq(sa_available_memory(&allocator), capacity);
-	cr_assert_eq(sa_used_memory(&allocator), 0);
+	cr_assert_null(sa_peek(&allocator, capacity));
 
 	sa_release(&allocator);
 }
