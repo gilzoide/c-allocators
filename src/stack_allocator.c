@@ -25,10 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sa_init(stack_allocator *memory) {
-	return sa_init_with_size(memory, SA_MEMORY_INITIAL_SIZE);
-}
-
 int sa_init_with_size(stack_allocator *memory, unsigned int size) {
 	memory->buffer = malloc(size);
 	int malloc_success = memory->buffer != NULL;
@@ -49,25 +45,30 @@ void *sa_alloc(stack_allocator *memory, unsigned int size) {
 	return ptr;
 }
 
-int sa_available_memory(stack_allocator *memory) {
-	return memory->capacity - memory->marker;
+void sa_free(stack_allocator *memory) {
+	memory->marker = 0;
 }
 
-int sa_used_memory(stack_allocator *memory) {
-	return memory->marker;
+void *sa_peek(stack_allocator *memory, unsigned int size) {
+	if(size == 0 || memory->marker < size) return NULL;
+	return memory->buffer + memory->marker - size;
 }
 
 int sa_get_marker(stack_allocator *memory) {
 	return memory->marker;
 }
 
-void sa_free(stack_allocator *memory) {
-	memory->marker = 0;
-}
-
 void sa_free_marker(stack_allocator *memory, int marker) {
 	if(marker < memory->marker && marker >= 0) {
 		memory->marker = marker;
 	}
+}
+
+int sa_available_memory(stack_allocator *memory) {
+	return memory->capacity - memory->marker;
+}
+
+int sa_used_memory(stack_allocator *memory) {
+	return memory->marker;
 }
 

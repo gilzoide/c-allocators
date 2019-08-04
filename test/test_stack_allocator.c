@@ -96,3 +96,26 @@ Test(stack_allocator, partial_usage) {
 	sa_release(&allocator);
 }
 
+Test(stack_allocator, peek) {
+	int capacity = 16;
+	int alloc_size = 4;
+
+	stack_allocator allocator;
+	cr_assert(sa_init_with_size(&allocator, capacity));
+
+	void *first_ptr = sa_alloc(&allocator, alloc_size);
+	cr_assert_not_null(first_ptr);
+	cr_assert_eq(sa_peek(&allocator, alloc_size), first_ptr);
+
+	void *ptr = sa_alloc(&allocator, alloc_size);
+	cr_assert_not_null(ptr);
+	cr_assert_eq(sa_peek(&allocator, alloc_size), ptr);
+	cr_assert_eq(sa_peek(&allocator, 2 * alloc_size), first_ptr);
+
+
+	sa_free(&allocator);
+	cr_assert_eq(sa_available_memory(&allocator), capacity);
+	cr_assert_eq(sa_used_memory(&allocator), 0);
+
+	sa_release(&allocator);
+}
