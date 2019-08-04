@@ -23,13 +23,12 @@
 #include "double_stack_allocator.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 int dsa_init(double_stack_allocator *memory) {
 	return dsa_init_with_size(memory, DSA_MEMORY_INITIAL_SIZE);
 }
 
-int dsa_init_with_size(double_stack_allocator *memory, int size) {
+int dsa_init_with_size(double_stack_allocator *memory, unsigned int size) {
 	memory->buffer = malloc(size);
 	int malloc_success = memory->buffer != NULL;
 	memory->capacity = malloc_success * size;
@@ -46,14 +45,14 @@ void dsa_release(double_stack_allocator *memory) {
 	};
 }
 
-void *dsa_alloc_top(double_stack_allocator *memory, int size) {
+void *dsa_alloc_top(double_stack_allocator *memory, unsigned int size) {
 	if(memory->top - size < memory->bottom) return NULL;
 	memory->top -= size;
 	void *ptr = memory->buffer + memory->top + 1;
 	return ptr;
 }
 
-void *dsa_alloc_bottom(double_stack_allocator *memory, int size) {
+void *dsa_alloc_bottom(double_stack_allocator *memory, unsigned int size) {
 	if(memory->bottom + size > memory->top) return NULL;
 	void *ptr = memory->buffer + memory->bottom;
 	memory->bottom += size;

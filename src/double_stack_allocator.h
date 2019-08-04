@@ -40,11 +40,11 @@ typedef struct double_stack_allocator {
 } double_stack_allocator;
 
 int dsa_init(double_stack_allocator *memory);
-int dsa_init_with_size(double_stack_allocator *memory, int size);
+int dsa_init_with_size(double_stack_allocator *memory, unsigned int size);
 void dsa_release(double_stack_allocator *memory);
 
-void *dsa_alloc_top(double_stack_allocator *memory, int size);
-void *dsa_alloc_bottom(double_stack_allocator *memory, int size);
+void *dsa_alloc_top(double_stack_allocator *memory, unsigned int size);
+void *dsa_alloc_bottom(double_stack_allocator *memory, unsigned int size);
 
 int dsa_available_memory(double_stack_allocator *memory);
 int dsa_used_memory(double_stack_allocator *memory);

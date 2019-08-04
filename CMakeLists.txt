@@ -23,10 +23,7 @@ add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/.cmake")
 find_package(Criterion REQUIRED)
 
-add_library(double-stack-allocator double_stack_allocator.c)
-set_target_properties(double-stack-allocator PROPERTIES
-	VERSION "${PROJECT_VERSION}"
-	SOVERSION "${PROJECT_SOVERSION}")
+add_subdirectory(src)
 
 option(ENABLE_TESTS "Enable tests to be built and run with `make test`" OFF)
 if(ENABLE_TESTS)
