@@ -14,4 +14,8 @@ Test(double_stack_allocator, initialization) {
 
 	dsa_release(&allocator);
 	cr_assert_eq(dsa_available_memory(&allocator), 0);
+	cr_assert_eq(dsa_used_memory(&allocator), 0);
+
+	dsa_release(&allocator);
 }
+
