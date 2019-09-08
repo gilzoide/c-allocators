@@ -23,7 +23,6 @@
 #include "stack_allocator.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 int sa_init_with_size(stack_allocator *memory, unsigned int size) {
 	memory->buffer = malloc(size);
@@ -35,7 +34,7 @@ int sa_init_with_size(stack_allocator *memory, unsigned int size) {
 
 void sa_release(stack_allocator *memory) {
 	free(memory->buffer);
-	memset(memory, 0, sizeof(stack_allocator));
+	*memory = (stack_allocator){};
 }
 
 void *sa_alloc(stack_allocator *memory, unsigned int size) {

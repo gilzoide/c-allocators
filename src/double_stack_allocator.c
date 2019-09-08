@@ -24,31 +24,25 @@
 
 #include <stdlib.h>
 
-int dsa_init(double_stack_allocator *memory) {
-	return dsa_init_with_size(memory, DSA_MEMORY_INITIAL_SIZE);
-}
-
 int dsa_init_with_size(double_stack_allocator *memory, unsigned int size) {
 	memory->buffer = malloc(size);
 	int malloc_success = memory->buffer != NULL;
-	memory->capacity = malloc_success * size;
-	memory->top = (malloc_success * size) - 1;
+	int capacity = malloc_success * size;
+	memory->capacity = capacity;
+	memory->top = capacity;
 	memory->bottom = 0;
 	return malloc_success;
 }
 
 void dsa_release(double_stack_allocator *memory) {
 	free(memory->buffer);
-	// zero out buffer, capacity and bottom, set top to -1
-	*memory = (double_stack_allocator){
-		.top = -1,
-	};
+	*memory = (double_stack_allocator){};
 }
 
 void *dsa_alloc_top(double_stack_allocator *memory, unsigned int size) {
-	if(memory->top - size < memory->bottom) return NULL;
+	if(memory->top < memory->bottom + size) return NULL;
 	memory->top -= size;
-	void *ptr = memory->buffer + memory->top + 1;
+	void *ptr = memory->buffer + memory->top;
 	return ptr;
 }
 
@@ -60,11 +54,11 @@ void *dsa_alloc_bottom(double_stack_allocator *memory, unsigned int size) {
 }
 
 int dsa_available_memory(double_stack_allocator *memory) {
-	return memory->top + 1 - memory->bottom;
+	return memory->top - memory->bottom;
 }
 
 int dsa_used_memory(double_stack_allocator *memory) {
-	return memory->bottom + (memory->capacity - (memory->top + 1));
+	return memory->bottom + (memory->capacity - memory->top);
 }
 
 int dsa_get_top_marker(double_stack_allocator *memory) {
@@ -75,7 +69,7 @@ int dsa_get_bottom_marker(double_stack_allocator *memory) {
 }
 
 void dsa_free_top(double_stack_allocator *memory) {
-	memory->top = memory->capacity - 1;
+	memory->top = memory->capacity;
 }
 
 void dsa_free_bottom(double_stack_allocator *memory) {
@@ -83,7 +77,7 @@ void dsa_free_bottom(double_stack_allocator *memory) {
 }
 
 void dsa_free_top_marker(double_stack_allocator *memory, int marker) {
-	if(marker > memory->top && marker < memory->capacity) {
+	if(marker > memory->top && marker <= memory->capacity) {
 		memory->top = marker;
 	}
 }

@@ -25,6 +25,8 @@
 
 /**
  * A static stack allocator.
+ *
+ * The bottom marker is increased, so pushed memory blocks have increasing addresses.
  */
 typedef struct stack_allocator {
 	void *buffer;  ///< Memory buffer used.

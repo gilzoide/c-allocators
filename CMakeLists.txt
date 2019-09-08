@@ -18,15 +18,15 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -DNDEBUG")
 add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 
-# option(BUILD_SHARED_LIBS "Build as a shared library" ON)
+option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/.cmake")
-find_package(Criterion REQUIRED)
 
 add_subdirectory(src)
 
 option(ENABLE_TESTS "Enable tests to be built and run with `make test`" OFF)
 if(ENABLE_TESTS)
+	find_package(Criterion REQUIRED)
 	enable_testing()
 	add_subdirectory(test)
 endif()

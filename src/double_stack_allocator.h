@@ -23,8 +23,6 @@
 #ifndef __DOUBLE_STACK_ALLOCATOR_H__
 #define __DOUBLE_STACK_ALLOCATOR_H__
 
-#define DSA_MEMORY_INITIAL_SIZE 4096
-
 /**
  * Custom memory manager: a double stack allocator.
  *
@@ -35,11 +33,10 @@
 typedef struct double_stack_allocator {
 	void *buffer;  ///< Memory buffer used
 	int capacity;  ///< Capacity of memory buffer
-	int top;  ///< Top mark, moved when allocating from the top
 	int bottom;  ///< Bottok mark, moved when allocating from the bottom
+	int top;  ///< Top mark, moved when allocating from the top
 } double_stack_allocator;
 
-int dsa_init(double_stack_allocator *memory);
 int dsa_init_with_size(double_stack_allocator *memory, unsigned int size);
 void dsa_release(double_stack_allocator *memory);
 
