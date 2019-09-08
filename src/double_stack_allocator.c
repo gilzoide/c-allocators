@@ -88,3 +88,13 @@ void dsa_free_bottom_marker(double_stack_allocator *memory, int marker) {
 	}
 }
 
+void *dsa_peek_top(double_stack_allocator *memory, unsigned int size) {
+	if(size == 0 || memory->capacity - memory->top < size) return NULL;
+	return memory->buffer + memory->top;
+}
+
+void *dsa_peek_bottom(double_stack_allocator *memory, unsigned int size) {
+	if(size == 0 || memory->bottom < size) return NULL;
+	return memory->buffer + memory->bottom - size;
+}
+

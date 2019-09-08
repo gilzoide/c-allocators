@@ -158,6 +158,29 @@ void dsa_free_top_marker(double_stack_allocator *memory, int marker);
 void dsa_free_bottom_marker(double_stack_allocator *memory, int marker);
 
 /**
+ * Retrieve a pointer to the last `size` bytes allocated from top.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param size   Number of bytes to peek.
+ *
+ * @return Pointer to the allocated memory, if at least `size` bytes are
+ *         allocated from top.
+ * @return NULL otherwise.
+ */
+void *dsa_peek_top(double_stack_allocator *memory, unsigned int size);
+/**
+ * Retrieve a pointer to the last `size` bytes allocated from bottom.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param size   Number of bytes to peek.
+ *
+ * @return Pointer to the allocated memory, if at least `size` bytes are
+ *         allocated from bottom.
+ * @return NULL otherwise.
+ */
+void *dsa_peek_bottom(double_stack_allocator *memory, unsigned int size);
+
+/**
  * Get the quantity of free memory available in a Double Stack Allocator.
  *
  * @param memory The Double Stack Allocator.
