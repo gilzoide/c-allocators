@@ -37,23 +37,142 @@ typedef struct double_stack_allocator {
 	int top;  ///< Top mark, moved when allocating from the top
 } double_stack_allocator;
 
+/**
+ * Initializes a Double Stack Allocator with a memory size.
+ *
+ * Upon failure, allocator will have a capacity of 0.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param size   Size in bytes of the memory block to be allocated.
+ *
+ * @return Non-zero if memory was allocated successfully.
+ * @return 0 otherwise.
+ */
 int dsa_init_with_size(double_stack_allocator *memory, unsigned int size);
+/**
+ * Release the memory associated with a Double Stack Allocator.
+ *
+ * This also zeroes out all fields in Allocator.
+ *
+ * It is safe to call this on a zero-initialized or previously released
+ * allocator.
+ *
+ * @param memory The Double Stack Allocator.
+ */
 void dsa_release(double_stack_allocator *memory);
 
+/**
+ * Allocates a sized chunk of memory from top of Double Stack Allocator.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param size   Size in bytes of the allocation.
+ *
+ * @return Allocated block memory on success.
+ * @return NULL if not enought memory is available.
+ */
 void *dsa_alloc_top(double_stack_allocator *memory, unsigned int size);
+/**
+ * Allocates a sized chunk of memory from bottom of Double Stack Allocator.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param size   Size in bytes of the allocation.
+ *
+ * @return Allocated block memory on success.
+ * @return NULL if not enought memory is available.
+ */
 void *dsa_alloc_bottom(double_stack_allocator *memory, unsigned int size);
 
-int dsa_available_memory(double_stack_allocator *memory);
-int dsa_used_memory(double_stack_allocator *memory);
-
+/**
+ * Get a marker for the current top allocation state.
+ *
+ * The result can be used for freeing a Double Stack Allocator back to this state.
+ *
+ * @param memory The Double Stack Allocator.
+ *
+ * @return Marker for the current allocation state.
+ */
 int dsa_get_top_marker(double_stack_allocator *memory);
+/**
+ * Get a marker for the current bottom allocation state.
+ *
+ * The result can be used for freeing a Double Stack Allocator back to this state.
+ *
+ * @param memory The Double Stack Allocator.
+ *
+ * @return Marker for the current allocation state.
+ */
 int dsa_get_bottom_marker(double_stack_allocator *memory);
 
+/**
+ * Free all used memory from top of Double Stack Allocator, making it available
+ * for allocation once more.
+ *
+ * After calling this, all top markers previously got become invalid.
+ *
+ * To actually reclaim the used memory for the OS, use #dsa_release instead.
+ *
+ * @param memory The Double Stack Allocator.
+ */
 void dsa_free_top(double_stack_allocator *memory);
+/**
+ * Free all used memory from bottom of Double Stack Allocator, making it
+ * available for allocation once more.
+ *
+ * After calling this, all bottom markers previously got become invalid.
+ *
+ * To actually reclaim the used memory for the OS, use #dsa_release instead.
+ *
+ * @param memory The Double Stack Allocator.
+ */
 void dsa_free_bottom(double_stack_allocator *memory);
 
+/**
+ * Free the used memory from Double Stack Allocator top up until `marker`,
+ * making it available for allocation once more.
+ *
+ * Memory is only freed if `marker` points to allocated memory, so invalid
+ * markers are ignored.
+ *
+ * After calling this, markers lesser than `marker` become invalid.
+ *
+ * To actually reclaim the used memory for the OS, use #dsa_release instead.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param marker A marker to a top allocation state.
+ */
 void dsa_free_top_marker(double_stack_allocator *memory, int marker);
+/**
+ * Free the used memory from Double Stack Allocator bottom up until `marker`,
+ * making it available for allocation once more.
+ *
+ * Memory is only freed if `marker` points to allocated memory, so invalid
+ * markers are ignored.
+ *
+ * After calling this, markers greater than `marker` become invalid.
+ *
+ * To actually reclaim the used memory for the OS, use #dsa_release instead.
+ *
+ * @param memory The Double Stack Allocator.
+ * @param marker A marker to a bottom allocation state.
+ */
 void dsa_free_bottom_marker(double_stack_allocator *memory, int marker);
+
+/**
+ * Get the quantity of free memory available in a Double Stack Allocator.
+ *
+ * @param memory The Double Stack Allocator.
+ *
+ * @return Size in bytes of the free memory block in allocator.
+ */
+int dsa_available_memory(double_stack_allocator *memory);
+/**
+ * Get the quantity of used memory in a Double Stack Allocator.
+ *
+ * @param memory The Double Stack Allocator.
+ *
+ * @return Size in bytes of the memory block used in allocator.
+ */
+int dsa_used_memory(double_stack_allocator *memory);
 
 #endif
 
