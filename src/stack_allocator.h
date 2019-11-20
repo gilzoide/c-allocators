@@ -23,6 +23,10 @@
 #ifndef __STACK_ALLOCATOR_H__
 #define __STACK_ALLOCATOR_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A static stack allocator.
  *
@@ -132,6 +136,10 @@ int sa_available_memory(stack_allocator *memory);
  * @return Size in bytes of the memory block used in allocator.
  */
 int sa_used_memory(stack_allocator *memory);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

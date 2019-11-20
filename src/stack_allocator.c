@@ -23,6 +23,7 @@
 #include "stack_allocator.h"
 
 #include <stdlib.h>
+#include <stdint.h>
 
 int sa_init_with_size(stack_allocator *memory, unsigned int size) {
 	memory->buffer = malloc(size);
@@ -39,7 +40,7 @@ void sa_release(stack_allocator *memory) {
 
 void *sa_alloc(stack_allocator *memory, unsigned int size) {
 	if(memory->marker + size > memory->capacity) return NULL;
-	void *ptr = memory->buffer + memory->marker;
+	void *ptr = (uint8_t *)memory->buffer + memory->marker;
 	memory->marker += size;
 	return ptr;
 }
@@ -50,7 +51,7 @@ void sa_free(stack_allocator *memory) {
 
 void *sa_peek(stack_allocator *memory, unsigned int size) {
 	if(size == 0 || memory->marker < size) return NULL;
-	return memory->buffer + memory->marker - size;
+	return (uint8_t *)memory->buffer + memory->marker - size;
 }
 
 int sa_get_marker(stack_allocator *memory) {
