@@ -23,10 +23,10 @@ extern "C" {
  *
  */
 typedef struct dsa_double_stack_allocator {
-	void *buffer;  ///< Memory buffer used
-	size_t capacity;  ///< Capacity of memory buffer
-	size_t bottom;  ///< Bottok mark, moved when allocating from the bottom
-	size_t top;  ///< Top mark, moved when allocating from the top
+    void *buffer;  ///< Memory buffer used
+    size_t capacity;  ///< Capacity of memory buffer
+    size_t bottom;  ///< Bottok mark, moved when allocating from the bottom
+    size_t top;  ///< Top mark, moved when allocating from the top
 } dsa_double_stack_allocator;
 
 /// Helper macro to construct Double Stack Allocators from already allocated buffer
@@ -243,78 +243,78 @@ DSA_DEF dsa_double_stack_allocator dsa_new_with_capacity(size_t capacity) {
 }
 
 DSA_DEF int dsa_init_with_capacity(dsa_double_stack_allocator *memory, size_t capacity) {
-	memory->buffer = DSA_MALLOC(capacity);
-	int malloc_success = memory->buffer != NULL;
-	capacity = malloc_success * capacity;
-	memory->capacity = capacity;
-	memory->top = capacity;
-	memory->bottom = 0;
-	return malloc_success;
+    memory->buffer = DSA_MALLOC(capacity);
+    int malloc_success = memory->buffer != NULL;
+    capacity = malloc_success * capacity;
+    memory->capacity = capacity;
+    memory->top = capacity;
+    memory->bottom = 0;
+    return malloc_success;
 }
 
 DSA_DEF void dsa_release(dsa_double_stack_allocator *memory) {
-	DSA_FREE(memory->buffer);
-	*memory = (dsa_double_stack_allocator){};
+    DSA_FREE(memory->buffer);
+    *memory = (dsa_double_stack_allocator){};
 }
 
 DSA_DEF void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size) {
-	if(memory->top < memory->bottom + size) return NULL;
-	memory->top -= size;
-	void *ptr = ((uint8_t *) memory->buffer) + memory->top;
-	return ptr;
+    if(memory->top < memory->bottom + size) return NULL;
+    memory->top -= size;
+    void *ptr = ((uint8_t *) memory->buffer) + memory->top;
+    return ptr;
 }
 
 DSA_DEF void *dsa_alloc_bottom(dsa_double_stack_allocator *memory, size_t size) {
-	if(memory->bottom + size > memory->top) return NULL;
-	void *ptr = ((uint8_t *) memory->buffer) + memory->bottom;
-	memory->bottom += size;
-	return ptr;
+    if(memory->bottom + size > memory->top) return NULL;
+    void *ptr = ((uint8_t *) memory->buffer) + memory->bottom;
+    memory->bottom += size;
+    return ptr;
 }
 
 DSA_DEF void dsa_clear_top(dsa_double_stack_allocator *memory) {
-	memory->top = memory->capacity;
+    memory->top = memory->capacity;
 }
 
 DSA_DEF void dsa_clear_bottom(dsa_double_stack_allocator *memory) {
-	memory->bottom = 0;
+    memory->bottom = 0;
 }
 
 DSA_DEF size_t dsa_get_top_marker(dsa_double_stack_allocator *memory) {
-	return memory->top;
+    return memory->top;
 }
 
 DSA_DEF size_t dsa_get_bottom_marker(dsa_double_stack_allocator *memory) {
-	return memory->bottom;
+    return memory->bottom;
 }
 
 DSA_DEF void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t marker) {
-	if(marker > memory->top && marker <= memory->capacity) {
-		memory->top = marker;
-	}
+    if(marker > memory->top && marker <= memory->capacity) {
+        memory->top = marker;
+    }
 }
 
 DSA_DEF void dsa_clear_bottom_marker(dsa_double_stack_allocator *memory, size_t marker) {
-	if(marker < memory->bottom) {
-		memory->bottom = marker;
-	}
+    if(marker < memory->bottom) {
+        memory->bottom = marker;
+    }
 }
 
 DSA_DEF void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size) {
-	if(memory->capacity - memory->top < size) return NULL;
-	return ((uint8_t *) memory->buffer) + memory->top;
+    if(memory->capacity - memory->top < size) return NULL;
+    return ((uint8_t *) memory->buffer) + memory->top;
 }
 
 DSA_DEF void *dsa_peek_bottom(dsa_double_stack_allocator *memory, size_t size) {
-	if(memory->bottom < size) return NULL;
-	return ((uint8_t *) memory->buffer) + memory->bottom - size;
+    if(memory->bottom < size) return NULL;
+    return ((uint8_t *) memory->buffer) + memory->bottom - size;
 }
 
 DSA_DEF size_t dsa_available_memory(dsa_double_stack_allocator *memory) {
-	return memory->top - memory->bottom;
+    return memory->top - memory->bottom;
 }
 
 DSA_DEF size_t dsa_used_memory(dsa_double_stack_allocator *memory) {
-	return memory->bottom + (memory->capacity - memory->top);
+    return memory->bottom + (memory->capacity - memory->top);
 }
 
 #endif
