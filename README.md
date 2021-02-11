@@ -8,7 +8,7 @@ A collection of public domain single-file custom allocators for C/C++.
 Copy the desired source file to your project, include it wherever necessary and add a `#define <ALLOCATOR_NAME>_IMPLEMENTATION` in exactly **one** C/C++ file to create the implementation.
 
 
-## Stack Allocator
+## [stack_allocator.h](stack_allocator.h)
 A Stack (Bump) Allocator implementation, maintaining a memory buffer and the current allocation marker.
 
 Allocation markers can be used to free allocator up to some point, instead of clearing the entire stack.
@@ -19,7 +19,7 @@ There are also `FOREACH` macros for iterating stack in allocation order or rever
 assuming that all values are of the same type.
 
 
-## Double Stack Allocator
+## [double_stack_allocator.h](double_stack_allocator.h)
 A Double Ended Stack (Bump) Allocator implementation, maintaining a memory buffer and current allocation
 markers for both ends.
 
