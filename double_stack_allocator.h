@@ -34,17 +34,37 @@ typedef struct dsa_double_stack_allocator {
     ((dsa_double_stack_allocator){ buffer, capacity, 0, capacity })
 
 /**
+ * Create a new Double Stack Allocator from buffer and capacity.
+ *
+ * @param buffer    Allocated buffer
+ * @param capacity  Size in bytes of the buffer
+ *
+ * @return Double Stack Allocator
+ */
+DSA_DEF dsa_double_stack_allocator dsa_new(void *buffer, size_t capacity);
+/**
+ * Create a new Double Stack Allocator from capacity.
+ *
+ * Uses DSA_MALLOC to allocate the buffer.
+ *
+ * @param capacity  Size in bytes of the buffer
+ *
+ * @return Double Stack Allocator
+ */
+DSA_DEF dsa_double_stack_allocator dsa_new_with_capacity(size_t capacity);
+
+/**
  * Initializes a Double Stack Allocator with a memory size.
  *
  * Upon failure, allocator will have a capacity of 0.
  *
- * @param memory The Double Stack Allocator.
- * @param size   Size in bytes of the memory block to be allocated.
+ * @param memory    The Double Stack Allocator.
+ * @param capacity  Size in bytes of the memory block to be allocated.
  *
  * @return Non-zero if memory was allocated successfully.
  * @return 0 otherwise.
  */
-DSA_DEF int dsa_init_with_size(dsa_double_stack_allocator *memory, size_t size);
+DSA_DEF int dsa_init_with_capacity(dsa_double_stack_allocator *memory, size_t capacity);
 /**
  * Release the memory associated with a Double Stack Allocator.
  *
@@ -212,10 +232,20 @@ DSA_DEF size_t dsa_used_memory(dsa_double_stack_allocator *memory);
     #define DSA_FREE(size) free(size)
 #endif
 
-DSA_DEF int dsa_init_with_size(dsa_double_stack_allocator *memory, size_t size) {
-	memory->buffer = DSA_MALLOC(size);
+DSA_DEF dsa_double_stack_allocator dsa_new(void *buffer, size_t capacity) {
+    return DSA_NEW(buffer, capacity);
+}
+
+DSA_DEF dsa_double_stack_allocator dsa_new_with_capacity(size_t capacity) {
+    dsa_double_stack_allocator double_stack_allocator;
+    dsa_init_with_capacity(&double_stack_allocator, capacity);
+    return double_stack_allocator;
+}
+
+DSA_DEF int dsa_init_with_capacity(dsa_double_stack_allocator *memory, size_t capacity) {
+	memory->buffer = DSA_MALLOC(capacity);
 	int malloc_success = memory->buffer != NULL;
-	size_t capacity = malloc_success * size;
+	capacity = malloc_success * capacity;
 	memory->capacity = capacity;
 	memory->top = capacity;
 	memory->bottom = 0;

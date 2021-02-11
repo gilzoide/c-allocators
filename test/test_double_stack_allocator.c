@@ -10,7 +10,7 @@ Test(double_stack_allocator, initialization) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
-	cr_assert(dsa_init_with_size(&allocator, size));
+	cr_assert(dsa_init_with_capacity(&allocator, size));
 
 	cr_assert_eq(allocator.capacity, size);
 	cr_assert_eq(dsa_available_memory(&allocator), size);
@@ -27,7 +27,7 @@ Test(double_stack_allocator, contiguous_memory) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
-	cr_assert(dsa_init_with_size(&allocator, size));
+	cr_assert(dsa_init_with_capacity(&allocator, size));
 
 	void *ptr1 = dsa_alloc_bottom(&allocator, 1);
 	void *ptr2 = dsa_alloc_bottom(&allocator, 1);
@@ -44,7 +44,7 @@ Test(double_stack_allocator, full_usage_bottom) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
-	cr_assert(dsa_init_with_size(&allocator, size));
+	cr_assert(dsa_init_with_capacity(&allocator, size));
 
 	void *ptr;
 	ptr = dsa_alloc_bottom(&allocator, size);
@@ -73,7 +73,7 @@ Test(double_stack_allocator, full_usage_top) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
-	cr_assert(dsa_init_with_size(&allocator, size));
+	cr_assert(dsa_init_with_capacity(&allocator, size));
 
 	void *ptr;
 	ptr = dsa_alloc_top(&allocator, size);
@@ -103,7 +103,7 @@ Test(double_stack_allocator, full_usage_top_bottom) {
 	int half_size = 8;
 
 	dsa_double_stack_allocator allocator;
-	cr_assert(dsa_init_with_size(&allocator, size));
+	cr_assert(dsa_init_with_capacity(&allocator, size));
 
 	void *ptr;
 	ptr = dsa_alloc_top(&allocator, half_size);
