@@ -1,5 +1,5 @@
 /**
- * stack_allocator.h -- Simple Stack Allocator (also called Bump Allocator) implementation
+ * stack_allocator.h -- Stack (Bump) Allocator implementation
  *
  * Project URL: https://github.com/gilzoide/c-allocators
  *
@@ -41,6 +41,8 @@ extern "C" {
 /// A static stack allocator.
 /// 
 /// Memory blocks pushed have increasing addresses.
+/// In particular, when allocating elements of a single type,
+/// this becomes a stack implementation.
 typedef struct sa_stack_allocator {
     void *buffer;     ///< Memory buffer used.
     size_t capacity;  ///< Capacity of memory buffer.
@@ -49,11 +51,26 @@ typedef struct sa_stack_allocator {
 
 /// Helper macro to construct Stack Allocators from already allocated buffer
 #define SA_NEW(buffer, capacity) \
-    ((sa_stack_allocator){ buffer, capacity, 0 })
+    ((sa_stack_allocator){ (buffer), (capacity), 0 })
 /// Typed version of SA_NEW
 #define SA_NEW_(buffer, type, capacity) \
-    SA_NEW(buffer, sizeof(type) * capacity)
+    SA_NEW((buffer), sizeof(type) * (capacity))
 
+/// Helper macro for iterating a Stack Allocator, assuming all elements are
+/// of the same type.
+///
+/// Elements will be traversed in insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define SA_FOREACH(type, identifier, memory) \
+    for(type *identifier = (type *) (memory)->buffer; identifier <= sa_peek_((memory), type); identifier++)
+
+/// Helper macro for iterating a Stack Allocator in reverse, assuming all
+/// elements are of the same type.
+///
+/// Elements will be traversed in reverse of insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define SA_FOREACH_REVERSE(type, identifier, memory) \
+    for(type *identifier = sa_peek_((memory), type); identifier >= (type *) (memory)->buffer; identifier--)
 
 /// Create a new Stack Allocator from buffer and capacity.
 /// 
@@ -64,7 +81,7 @@ typedef struct sa_stack_allocator {
 SA_DECL sa_stack_allocator sa_new(void *buffer, size_t capacity);
 /// Typed version of sa_new
 #define sa_new_(buffer, type, capacity) \
-    sa_new(buffer, sizeof(type) * capacity)
+    sa_new((buffer), sizeof(type) * (capacity))
 
 /// Create a new Stack Allocator from capacity.
 /// 
@@ -72,7 +89,7 @@ SA_DECL sa_stack_allocator sa_new(void *buffer, size_t capacity);
 SA_DECL sa_stack_allocator sa_new_with_capacity(size_t capacity);
 /// Typed version of sa_new_with_capacity
 #define sa_new_with_capacity_(type, capacity) \
-    sa_new_with_capacity(sizeof(type) * capacity)
+    sa_new_with_capacity(sizeof(type) * (capacity))
 
 /// Initializes a Stack Allocator with a memory size.
 /// 
@@ -83,7 +100,7 @@ SA_DECL sa_stack_allocator sa_new_with_capacity(size_t capacity);
 SA_DECL int sa_init_with_capacity(sa_stack_allocator *memory, size_t capacity);
 /// Typed version of sa_init_with_capacity
 #define sa_init_with_capacity_(memory, type, capacity) \
-    sa_init_with_capacity(memory, sizeof(type) * capacity)
+    sa_init_with_capacity((memory), sizeof(type) * (capacity))
 
 /// Release the memory associated with a Stack Allocator with SA_FREE.
 /// 
@@ -100,7 +117,7 @@ SA_DECL void sa_release(sa_stack_allocator *memory);
 SA_DECL void *sa_alloc(sa_stack_allocator *memory, size_t size);
 /// Typed version of sa_alloc
 #define sa_alloc_(memory, type) \
-    ((type *) sa_alloc(memory, sizeof(type)))
+    ((type *) sa_alloc((memory), sizeof(type)))
 
 /// Free all used memory from Stack Allocator, making it available for 
 /// allocation once more.
@@ -133,7 +150,7 @@ SA_DECL void sa_clear_marker(sa_stack_allocator *memory, size_t marker);
 SA_DECL void *sa_peek(sa_stack_allocator *memory, size_t size);
 /// Typed version of sa_peek
 #define sa_peek_(memory, type) \
-    ((type *) sa_peek(memory, sizeof(type)))
+    ((type *) sa_peek((memory), sizeof(type)))
 
 /// Get the quantity of free memory available in a Stack Allocator.
 SA_DECL size_t sa_available_memory(sa_stack_allocator *memory);

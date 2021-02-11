@@ -1,5 +1,5 @@
 /**
- * double_stack_allocator.h -- Double Stack Allocator (also called Bump Allocator) implementation
+ * double_stack_allocator.h -- Double Ended Stack (Bump) Allocator implementation
  *
  * Project URL: https://github.com/gilzoide/c-allocators
  *
@@ -41,6 +41,8 @@ extern "C" {
 /// 
 /// Memory blocks pushed from bottom have increasing addresses.
 /// Memory blocks pushed from top have decreasing addresses.
+/// In particular, when allocating elements of a single type,
+/// this becomes a double ended stack implementation.
 typedef struct dsa_double_stack_allocator {
     void *buffer;     ///< Memory buffer used
     size_t capacity;  ///< Capacity of memory buffer
@@ -50,16 +52,48 @@ typedef struct dsa_double_stack_allocator {
 
 /// Helper macro to construct Double Stack Allocators from already allocated buffer
 #define DSA_NEW(buffer, capacity) \
-    ((dsa_double_stack_allocator){ buffer, capacity, 0, capacity })
+    ((dsa_double_stack_allocator){ (buffer), (capacity), 0, (capacity) })
 /// Typed version of DSA_NEW
 #define DSA_NEW_(buffer, type, capacity) \
-    DSA_NEW(buffer, sizeof(type) * capacity)
+    DSA_NEW((buffer), sizeof(type) * (capacity))
+
+/// Helper macro for iterating a Double Stack Allocator from bottom,
+/// assuming all elements are of the same type.
+///
+/// Elements will be traversed in insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define DSA_FOREACH_BOTTOM(type, identifier, memory) \
+    for(type *identifier = (type *) (memory)->buffer; identifier <= dsa_peek_bottom_((memory), type); identifier++)
+
+/// Helper macro for iterating a Double Stack Allocator in reverse from bottom,
+/// assuming all elements are of the same type.
+///
+/// Elements will be traversed in reverse of insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define DSA_FOREACH_BOTTOM_REVERSE(type, identifier, memory) \
+    for(type *identifier = dsa_peek_bottom_((memory), type); identifier >= (type *) (memory)->buffer; identifier--)
+
+/// Helper macro for iterating a Double Stack Allocator from top,
+/// assuming all elements are of the same type.
+///
+/// Elements will be traversed in insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define DSA_FOREACH_TOP(type, identifier, memory) \
+    for(type *identifier = (type *) ((memory)->buffer + (memory)->capacity - sizeof(type)); identifier >= dsa_peek_top_((memory), type); identifier--)
+
+/// Helper macro for iterating a Double Stack Allocator in reverse from top,
+/// assuming all elements are of the same type.
+///
+/// Elements will be traversed in reverse of insertion order.
+/// `identifier` will be a pointer for `type` elements.
+#define DSA_FOREACH_TOP_REVERSE(type, identifier, memory) \
+    for(type *identifier = dsa_peek_top_((memory), type); identifier <= (type *) ((memory)->buffer + (memory)->capacity - sizeof(type)); identifier++)
 
 /// Create a new Double Stack Allocator from buffer and capacity.
 DSA_DECL dsa_double_stack_allocator dsa_new(void *buffer, size_t capacity);
 /// Typed version of dsa_new
 #define dsa_new_(buffer, type, capacity) \
-    dsa_new(buffer, sizeof(type) * capacity)
+    dsa_new((buffer), sizeof(type) * (capacity))
 
 /// Create a new Double Stack Allocator from capacity.
 /// 
@@ -67,7 +101,7 @@ DSA_DECL dsa_double_stack_allocator dsa_new(void *buffer, size_t capacity);
 DSA_DECL dsa_double_stack_allocator dsa_new_with_capacity(size_t capacity);
 /// Typed version of dsa_new_with_capacity
 #define dsa_new_with_capacity_(type, capacity) \
-    dsa_new_with_capacity(sizeof(type) * capacity)
+    dsa_new_with_capacity(sizeof(type) * (capacity))
 
 /// Initializes a Double Stack Allocator with a memory size.
 /// 
@@ -78,7 +112,7 @@ DSA_DECL dsa_double_stack_allocator dsa_new_with_capacity(size_t capacity);
 DSA_DECL int dsa_init_with_capacity(dsa_double_stack_allocator *memory, size_t capacity);
 /// Typed version of dsa_init_with_capacity
 #define dsa_init_with_capacity_(memory, type, capacity) \
-    dsa_init_with_capacity(memory, sizeof(type) * capacity)
+    dsa_init_with_capacity((memory), sizeof(type) * (capacity))
 
 /// Release the memory associated with a Double Stack Allocator with DSA_FREE.
 /// 
@@ -95,7 +129,7 @@ DSA_DECL void dsa_release(dsa_double_stack_allocator *memory);
 DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size);
 /// Typed version of dsa_alloc_top
 #define dsa_alloc_top_(memory, type) \
-    ((type *) dsa_alloc_top(memory, sizeof(type)))
+    ((type *) dsa_alloc_top((memory), sizeof(type)))
 
 /// Allocates a sized chunk of memory from bottom of Double Stack Allocator.
 /// 
@@ -104,7 +138,7 @@ DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size);
 DSA_DECL void *dsa_alloc_bottom(dsa_double_stack_allocator *memory, size_t size);
 /// Typed version of dsa_alloc_bottom
 #define dsa_alloc_bottom_(memory, type) \
-    ((type *) dsa_alloc_bottom(memory, sizeof(type)))
+    ((type *) dsa_alloc_bottom((memory), sizeof(type)))
 
 /// Free all used memory from top of Double Stack Allocator, making it available
 /// for allocation once more.
@@ -162,7 +196,7 @@ DSA_DECL void dsa_clear_bottom_marker(dsa_double_stack_allocator *memory, size_t
 DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size);
 /// Typed version of dsa_peek_top
 #define dsa_peek_top_(memory, type) \
-    ((type *) dsa_peek_top(memory, sizeof(type)))
+    ((type *) dsa_peek_top((memory), sizeof(type)))
 
 /// Retrieve a pointer to the last `size` bytes allocated from bottom.
 /// 
@@ -172,7 +206,7 @@ DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size);
 DSA_DECL void *dsa_peek_bottom(dsa_double_stack_allocator *memory, size_t size);
 /// Typed version of dsa_peek_bottom
 #define dsa_peek_bottom_(memory, type) \
-    ((type *) dsa_peek_bottom(memory, sizeof(type)))
+    ((type *) dsa_peek_bottom((memory), sizeof(type)))
 
 /// Get the quantity of free memory available in a Double Stack Allocator
 DSA_DECL size_t dsa_available_memory(dsa_double_stack_allocator *memory);

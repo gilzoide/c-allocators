@@ -3,8 +3,8 @@
 
 #include <criterion/criterion.h>
 
-Test(stack_allocator, initialization) {
-	int capacity = 16;
+Test(sa_stack_allocator, initialization) {
+	size_t capacity = 16;
 
 	sa_stack_allocator allocator;
 	cr_assert(sa_init_with_capacity(&allocator, capacity));
@@ -20,7 +20,7 @@ Test(stack_allocator, initialization) {
 	sa_release(&allocator);
 }
 
-Test(stack_allocator, empty) {
+Test(sa_stack_allocator, empty) {
 	sa_stack_allocator allocator;
 	cr_assert(sa_init_with_capacity(&allocator, 0));
 
@@ -37,8 +37,8 @@ Test(stack_allocator, empty) {
 	sa_release(&allocator);
 }
 
-Test(stack_allocator, full_usage) {
-	int capacity = 16;
+Test(sa_stack_allocator, full_usage) {
+	size_t capacity = 16;
 
 	sa_stack_allocator allocator;
 	cr_assert(sa_init_with_capacity(&allocator, capacity));
@@ -61,9 +61,9 @@ Test(stack_allocator, full_usage) {
 	sa_release(&allocator);
 }
 
-Test(stack_allocator, partial_usage) {
-	int capacity = 16;
-	int alloc_size = 4;
+Test(sa_stack_allocator, partial_usage) {
+	size_t capacity = 16;
+	size_t alloc_size = 4;
 
 	sa_stack_allocator allocator;
 	cr_assert(sa_init_with_capacity(&allocator, capacity));
@@ -74,7 +74,7 @@ Test(stack_allocator, partial_usage) {
 	cr_assert_eq(sa_available_memory(&allocator), capacity - alloc_size);
 	cr_assert_eq(sa_used_memory(&allocator), alloc_size);
 
-	int marker = sa_get_marker(&allocator);
+	size_t marker = sa_get_marker(&allocator);
 
 	ptr = sa_alloc(&allocator, capacity - alloc_size);
 	cr_assert_not_null(ptr);
@@ -97,9 +97,9 @@ Test(stack_allocator, partial_usage) {
 	sa_release(&allocator);
 }
 
-Test(stack_allocator, peek) {
-	int capacity = 16;
-	int alloc_size = 4;
+Test(sa_stack_allocator, peek) {
+	size_t capacity = 16;
+	size_t alloc_size = 4;
 
 	sa_stack_allocator allocator;
 	cr_assert(sa_init_with_capacity(&allocator, capacity));
@@ -116,4 +116,30 @@ Test(stack_allocator, peek) {
 	cr_assert_null(sa_peek(&allocator, capacity));
 
 	sa_release(&allocator);
+}
+
+Test(sa_stack_allocator, foreach) {
+	size_t capacity = 16;
+
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity_(&allocator, int, capacity));
+
+    int i;
+    for(i = 0; i < capacity; i++) {
+        *sa_alloc_(&allocator, int) = i;
+    }
+
+    i = 0;
+    SA_FOREACH(int, number, &allocator) {
+        cr_assert_eq(*number, i);
+        i++;
+    }
+    cr_assert_eq(i, capacity);
+
+    i = capacity;
+    SA_FOREACH_REVERSE(int, number, &allocator) {
+        i--;
+        cr_assert_eq(*number, i);
+    }
+    cr_assert_eq(i, 0);
 }

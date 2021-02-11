@@ -6,7 +6,7 @@
 #define LOG_ALLOCATOR(a) \
 	cr_log_info("{capacity = %d, bottom = %d, top = %d}", a.capacity, a.bottom, a.top)
 
-Test(double_stack_allocator, initialization) {
+Test(dsa_double_stack_allocator, initialization) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
@@ -23,7 +23,7 @@ Test(double_stack_allocator, initialization) {
 	dsa_release(&allocator);
 }
 
-Test(double_stack_allocator, contiguous_memory) {
+Test(dsa_double_stack_allocator, contiguous_memory) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
@@ -40,7 +40,7 @@ Test(double_stack_allocator, contiguous_memory) {
 	dsa_release(&allocator);
 }
 
-Test(double_stack_allocator, full_usage_bottom) {
+Test(dsa_double_stack_allocator, full_usage_bottom) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
@@ -69,7 +69,7 @@ Test(double_stack_allocator, full_usage_bottom) {
 	dsa_release(&allocator);
 }
 
-Test(double_stack_allocator, full_usage_top) {
+Test(dsa_double_stack_allocator, full_usage_top) {
 	int size = 16;
 
 	dsa_double_stack_allocator allocator;
@@ -98,7 +98,7 @@ Test(double_stack_allocator, full_usage_top) {
 	dsa_release(&allocator);
 }
 
-Test(double_stack_allocator, full_usage_top_bottom) {
+Test(dsa_double_stack_allocator, full_usage_top_bottom) {
 	int size = 16;
 	int half_size = 8;
 
@@ -124,3 +124,49 @@ Test(double_stack_allocator, full_usage_top_bottom) {
 	dsa_release(&allocator);
 }
 
+Test(dsa_double_stack_allocator, foreach) {
+	size_t capacity = 1024;
+
+	dsa_double_stack_allocator allocator;
+	cr_assert(dsa_init_with_capacity_(&allocator, int, capacity));
+
+    // Bottom
+    int i;
+    for(i = 0; i < capacity; i++) {
+        *dsa_alloc_bottom_(&allocator, int) = i;
+    }
+
+    i = 0;
+    DSA_FOREACH_BOTTOM(int, number, &allocator) {
+        cr_assert_eq(*number, i);
+        i++;
+    }
+    cr_assert_eq(i, capacity);
+
+    i = capacity;
+    DSA_FOREACH_BOTTOM_REVERSE(int, number, &allocator) {
+        i--;
+        cr_assert_eq(*number, i);
+    }
+    cr_assert_eq(i, 0);
+    dsa_clear_bottom(&allocator);
+
+    // Top
+    for(i = 0; i < capacity; i++) {
+        *dsa_alloc_top_(&allocator, int) = i;
+    }
+
+    i = 0;
+    DSA_FOREACH_TOP(int, number, &allocator) {
+        cr_assert_eq(*number, i);
+        i++;
+    }
+    cr_assert_eq(i, capacity);
+
+    i = capacity;
+    DSA_FOREACH_TOP_REVERSE(int, number, &allocator) {
+        i--;
+        cr_assert_eq(*number, i);
+    }
+    cr_assert_eq(i, 0);
+}
