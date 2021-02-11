@@ -5,7 +5,9 @@ A collection of public domain single-file custom allocators for C/C++.
 
 
 ## Using
-Copy the desired source file to your project, include it wherever necessary and add a `#define <ALLOCATOR_NAME>_IMPLEMENTATION` in exactly **one** C/C++ file to create the implementation.
+Copy the desired source file to your project, include it wherever necessary and
+add a `#define <ALLOCATOR_NAME>_IMPLEMENTATION` before including it in exactly
+**one** C/C++ file to create the implementation.
 
 
 ## [stack_allocator.h](stack_allocator.h)
