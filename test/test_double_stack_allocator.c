@@ -40,6 +40,48 @@ Test(dsa_double_stack_allocator, contiguous_memory) {
 	dsa_release(&allocator);
 }
 
+Test(dsa_double_stack_allocator, pop_peek) {
+	int size = 16;
+	size_t alloc_size = 4;
+
+	dsa_double_stack_allocator allocator;
+	cr_assert(dsa_init_with_capacity(&allocator, size));
+
+    // Bottom
+	void *first_ptr = dsa_alloc_bottom(&allocator, alloc_size);
+	cr_assert_not_null(first_ptr);
+	cr_assert_eq(dsa_peek_bottom(&allocator, alloc_size), first_ptr);
+
+	void *ptr = dsa_alloc_bottom(&allocator, alloc_size);
+	cr_assert_not_null(ptr);
+	cr_assert_eq(dsa_peek_bottom(&allocator, alloc_size), ptr);
+	cr_assert_eq(dsa_peek_bottom(&allocator, 2 * alloc_size), first_ptr);
+
+    dsa_pop_bottom(&allocator, alloc_size);
+    cr_assert_eq(dsa_peek_bottom(&allocator, alloc_size), first_ptr);
+
+    dsa_pop_bottom(&allocator, alloc_size);
+    cr_assert_null(dsa_peek_bottom(&allocator, alloc_size));
+
+    // Top
+	first_ptr = dsa_alloc_top(&allocator, alloc_size);
+	cr_assert_not_null(first_ptr);
+	cr_assert_eq(dsa_peek_top(&allocator, alloc_size), first_ptr);
+
+	ptr = dsa_alloc_top(&allocator, alloc_size);
+	cr_assert_not_null(ptr);
+	cr_assert_eq(dsa_peek_top(&allocator, alloc_size), ptr);
+	cr_assert_eq(dsa_peek_top(&allocator, 2 * alloc_size), ptr);
+
+    dsa_pop_top(&allocator, alloc_size);
+    cr_assert_eq(dsa_peek_top(&allocator, alloc_size), first_ptr);
+
+    dsa_pop_top(&allocator, alloc_size);
+    cr_assert_null(dsa_peek_top(&allocator, alloc_size));
+
+	dsa_release(&allocator);
+}
+
 Test(dsa_double_stack_allocator, full_usage_bottom) {
 	int size = 16;
 

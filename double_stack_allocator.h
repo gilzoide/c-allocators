@@ -122,15 +122,6 @@ DSA_DECL int dsa_init_with_capacity(dsa_double_stack_allocator *memory, size_t c
 /// zero-initialized or previously released allocator.
 DSA_DECL void dsa_release(dsa_double_stack_allocator *memory);
 
-/// Allocates a sized chunk of memory from top of Double Stack Allocator.
-/// 
-/// @return Allocated block memory on success.
-/// @return NULL if not enought memory is available.
-DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size);
-/// Typed version of dsa_alloc_top
-#define dsa_alloc_top_(memory, type) \
-    ((type *) dsa_alloc_top((memory), sizeof(type)))
-
 /// Allocates a sized chunk of memory from bottom of Double Stack Allocator.
 /// 
 /// @return Allocated block memory on success.
@@ -140,13 +131,14 @@ DSA_DECL void *dsa_alloc_bottom(dsa_double_stack_allocator *memory, size_t size)
 #define dsa_alloc_bottom_(memory, type) \
     ((type *) dsa_alloc_bottom((memory), sizeof(type)))
 
-/// Free all used memory from top of Double Stack Allocator, making it available
-/// for allocation once more.
+/// Allocates a sized chunk of memory from top of Double Stack Allocator.
 /// 
-/// After calling this, all top markers previously got become invalid.
-/// 
-/// To actually reclaim the used memory for the OS, use #dsa_release instead.
-DSA_DECL void dsa_clear_top(dsa_double_stack_allocator *memory);
+/// @return Allocated block memory on success.
+/// @return NULL if not enought memory is available.
+DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size);
+/// Typed version of dsa_alloc_top
+#define dsa_alloc_top_(memory, type) \
+    ((type *) dsa_alloc_top((memory), sizeof(type)))
 
 /// Free all used memory from bottom of Double Stack Allocator, making it
 /// available for allocation once more.
@@ -156,26 +148,23 @@ DSA_DECL void dsa_clear_top(dsa_double_stack_allocator *memory);
 /// To actually reclaim the used memory for the OS, use #dsa_release instead.
 DSA_DECL void dsa_clear_bottom(dsa_double_stack_allocator *memory);
 
-/// Get a marker for the current top allocation state.
+/// Free all used memory from top of Double Stack Allocator, making it available
+/// for allocation once more.
 /// 
-/// The result can be used for freeing a Double Stack Allocator back to this state.
-DSA_DECL size_t dsa_get_top_marker(dsa_double_stack_allocator *memory);
+/// After calling this, all top markers previously got become invalid.
+/// 
+/// To actually reclaim the used memory for the OS, use #dsa_release instead.
+DSA_DECL void dsa_clear_top(dsa_double_stack_allocator *memory);
 
 /// Get a marker for the current bottom allocation state.
 /// 
 /// The result can be used for freeing a Double Stack Allocator back to this state.
 DSA_DECL size_t dsa_get_bottom_marker(dsa_double_stack_allocator *memory);
 
-/// Free the used memory from Double Stack Allocator top up until `marker`,
-/// making it available for allocation once more.
+/// Get a marker for the current top allocation state.
 /// 
-/// Memory is only freed if `marker` points to allocated memory, so invalid
-/// markers are ignored.
-/// 
-/// After calling this, markers lesser than `marker` become invalid.
-/// 
-/// To actually reclaim the used memory for the OS, use #dsa_release instead.
-DSA_DECL void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t marker);
+/// The result can be used for freeing a Double Stack Allocator back to this state.
+DSA_DECL size_t dsa_get_top_marker(dsa_double_stack_allocator *memory);
 
 /// Free the used memory from Double Stack Allocator bottom up until `marker`,
 /// making it available for allocation once more.
@@ -188,15 +177,32 @@ DSA_DECL void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t ma
 /// To actually reclaim the used memory for the OS, use #dsa_release instead.
 DSA_DECL void dsa_clear_bottom_marker(dsa_double_stack_allocator *memory, size_t marker);
 
-/// Retrieve a pointer to the last `size` bytes allocated from top.
+/// Free the used memory from Double Stack Allocator top up until `marker`,
+/// making it available for allocation once more.
 /// 
-/// @return Pointer to the allocated memory, if at least `size` bytes are
-///         allocated from top.
-/// @return NULL otherwise.
-DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size);
-/// Typed version of dsa_peek_top
-#define dsa_peek_top_(memory, type) \
-    ((type *) dsa_peek_top((memory), sizeof(type)))
+/// Memory is only freed if `marker` points to allocated memory, so invalid
+/// markers are ignored.
+/// 
+/// After calling this, markers lesser than `marker` become invalid.
+/// 
+/// To actually reclaim the used memory for the OS, use #dsa_release instead.
+DSA_DECL void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t marker);
+
+/// Free the last `size` bytes from bottom of Stack Allocator.
+///
+/// It's safe to pop more bytes than there are allocated.
+DSA_DECL void dsa_pop_bottom(dsa_double_stack_allocator *memory, size_t size);
+/// Typed version of dsa_pop_bottom
+#define dsa_pop_bottom_(memory, type) \
+    dsa_pop_bottom((memory), sizeof(type))
+
+/// Free the first `size` bytes from top of Stack Allocator.
+///
+/// It's safe to pop more bytes than there are allocated.
+DSA_DECL void dsa_pop_top(dsa_double_stack_allocator *memory, size_t size);
+/// Typed version of dsa_pop_top
+#define dsa_pop_top_(memory, type) \
+    dsa_pop_top((memory), sizeof(type))
 
 /// Retrieve a pointer to the last `size` bytes allocated from bottom.
 /// 
@@ -207,6 +213,16 @@ DSA_DECL void *dsa_peek_bottom(dsa_double_stack_allocator *memory, size_t size);
 /// Typed version of dsa_peek_bottom
 #define dsa_peek_bottom_(memory, type) \
     ((type *) dsa_peek_bottom((memory), sizeof(type)))
+
+/// Retrieve a pointer to the last `size` bytes allocated from top.
+/// 
+/// @return Pointer to the allocated memory, if at least `size` bytes are
+///         allocated from top.
+/// @return NULL otherwise.
+DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size);
+/// Typed version of dsa_peek_top
+#define dsa_peek_top_(memory, type) \
+    ((type *) dsa_peek_top((memory), sizeof(type)))
 
 /// Get the quantity of free memory available in a Double Stack Allocator
 DSA_DECL size_t dsa_available_memory(dsa_double_stack_allocator *memory);
@@ -258,13 +274,6 @@ DSA_DECL void dsa_release(dsa_double_stack_allocator *memory) {
     *memory = (dsa_double_stack_allocator){};
 }
 
-DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size) {
-    if(memory->top < memory->bottom + size) return NULL;
-    memory->top -= size;
-    void *ptr = ((uint8_t *) memory->buffer) + memory->top;
-    return ptr;
-}
-
 DSA_DECL void *dsa_alloc_bottom(dsa_double_stack_allocator *memory, size_t size) {
     if(memory->bottom + size > memory->top) return NULL;
     void *ptr = ((uint8_t *) memory->buffer) + memory->bottom;
@@ -272,26 +281,27 @@ DSA_DECL void *dsa_alloc_bottom(dsa_double_stack_allocator *memory, size_t size)
     return ptr;
 }
 
-DSA_DECL void dsa_clear_top(dsa_double_stack_allocator *memory) {
-    memory->top = memory->capacity;
+DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size) {
+    if(memory->top < memory->bottom + size) return NULL;
+    memory->top -= size;
+    void *ptr = ((uint8_t *) memory->buffer) + memory->top;
+    return ptr;
 }
 
 DSA_DECL void dsa_clear_bottom(dsa_double_stack_allocator *memory) {
     memory->bottom = 0;
 }
 
-DSA_DECL size_t dsa_get_top_marker(dsa_double_stack_allocator *memory) {
-    return memory->top;
+DSA_DECL void dsa_clear_top(dsa_double_stack_allocator *memory) {
+    memory->top = memory->capacity;
 }
 
 DSA_DECL size_t dsa_get_bottom_marker(dsa_double_stack_allocator *memory) {
     return memory->bottom;
 }
 
-DSA_DECL void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t marker) {
-    if(marker > memory->top && marker <= memory->capacity) {
-        memory->top = marker;
-    }
+DSA_DECL size_t dsa_get_top_marker(dsa_double_stack_allocator *memory) {
+    return memory->top;
 }
 
 DSA_DECL void dsa_clear_bottom_marker(dsa_double_stack_allocator *memory, size_t marker) {
@@ -300,14 +310,38 @@ DSA_DECL void dsa_clear_bottom_marker(dsa_double_stack_allocator *memory, size_t
     }
 }
 
-DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size) {
-    if(memory->capacity - memory->top < size) return NULL;
-    return ((uint8_t *) memory->buffer) + memory->top;
+DSA_DECL void dsa_clear_top_marker(dsa_double_stack_allocator *memory, size_t marker) {
+    if(marker > memory->top && marker <= memory->capacity) {
+        memory->top = marker;
+    }
+}
+
+DSA_DECL void dsa_pop_bottom(dsa_double_stack_allocator *memory, size_t size) {
+    if(size > memory->bottom) {
+        memory->bottom = 0;
+    }
+    else {
+        memory->bottom -= size;
+    }
+}
+
+DSA_DECL void dsa_pop_top(dsa_double_stack_allocator *memory, size_t size) {
+    if(size > memory->capacity - memory->top) {
+        memory->top = memory->capacity;
+    }
+    else {
+        memory->top += size;
+    }
 }
 
 DSA_DECL void *dsa_peek_bottom(dsa_double_stack_allocator *memory, size_t size) {
     if(memory->bottom < size) return NULL;
     return ((uint8_t *) memory->buffer) + memory->bottom - size;
+}
+
+DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size) {
+    if(memory->capacity - memory->top < size) return NULL;
+    return ((uint8_t *) memory->buffer) + memory->top;
 }
 
 DSA_DECL size_t dsa_available_memory(dsa_double_stack_allocator *memory) {

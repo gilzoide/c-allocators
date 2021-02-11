@@ -97,6 +97,31 @@ Test(sa_stack_allocator, partial_usage) {
 	sa_release(&allocator);
 }
 
+Test(sa_stack_allocator, pop) {
+	size_t capacity = 16;
+	size_t alloc_size = 4;
+
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, capacity));
+
+	void *first_ptr = sa_alloc(&allocator, alloc_size);
+	cr_assert_not_null(first_ptr);
+	cr_assert_eq(sa_peek(&allocator, alloc_size), first_ptr);
+
+	void *ptr = sa_alloc(&allocator, alloc_size);
+	cr_assert_not_null(ptr);
+	cr_assert_eq(sa_peek(&allocator, alloc_size), ptr);
+	cr_assert_eq(sa_peek(&allocator, 2 * alloc_size), first_ptr);
+
+    sa_pop(&allocator, alloc_size);
+    cr_assert_eq(sa_peek(&allocator, alloc_size), first_ptr);
+
+    sa_pop(&allocator, alloc_size);
+    cr_assert_null(sa_peek(&allocator, alloc_size));
+
+	sa_release(&allocator);
+}
+
 Test(sa_stack_allocator, peek) {
 	size_t capacity = 16;
 	size_t alloc_size = 4;

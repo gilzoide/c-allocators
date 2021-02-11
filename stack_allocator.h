@@ -143,6 +143,14 @@ SA_DECL size_t sa_get_marker(sa_stack_allocator *memory);
 /// To actually reclaim the used memory for the OS, use #sa_release instead.
 SA_DECL void sa_clear_marker(sa_stack_allocator *memory, size_t marker);
 
+/// Free the last `size` bytes from Stack Allocator.
+///
+/// It's safe to pop more bytes than there are allocated.
+SA_DECL void sa_pop(sa_stack_allocator *memory, size_t size);
+/// Typed version of sa_pop
+#define sa_pop_(memory, type) \
+    sa_pop((memory), sizeof(type))
+
 /// Retrieve a pointer to the top `size` bytes allocated.
 /// 
 /// @return Pointer to the allocated memory, if at least `size` bytes are allocated.
@@ -218,6 +226,15 @@ SA_DECL size_t sa_get_marker(sa_stack_allocator *memory) {
 SA_DECL void sa_clear_marker(sa_stack_allocator *memory, size_t marker) {
     if(marker < memory->marker) {
         memory->marker = marker;
+    }
+}
+
+SA_DECL void sa_pop(sa_stack_allocator *memory, size_t size) {
+    if(size > memory->marker) {
+        memory->marker = 0;
+    }
+    else {
+        memory->marker -= size;
     }
 }
 
