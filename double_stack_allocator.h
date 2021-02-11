@@ -140,6 +140,12 @@ DSA_DECL void *dsa_alloc_top(dsa_double_stack_allocator *memory, size_t size);
 #define dsa_alloc_top_(memory, type) \
     ((type *) dsa_alloc_top((memory), sizeof(type)))
 
+// Aliases for Stack implementation semantics.
+#define dsa_push_bottom dsa_alloc_bottom
+#define dsa_push_bottom_ dsa_alloc_bottom_
+#define dsa_push_top dsa_alloc_top
+#define dsa_push_top_ dsa_alloc_top_
+
 /// Free all used memory from bottom of Double Stack Allocator, making it
 /// available for allocation once more.
 /// 

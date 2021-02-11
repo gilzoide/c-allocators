@@ -119,6 +119,10 @@ SA_DECL void *sa_alloc(sa_stack_allocator *memory, size_t size);
 #define sa_alloc_(memory, type) \
     ((type *) sa_alloc((memory), sizeof(type)))
 
+// Aliases for Stack implementation semantics.
+#define sa_push sa_alloc
+#define sa_push_ sa_alloc_
+
 /// Free all used memory from Stack Allocator, making it available for 
 /// allocation once more.
 /// 
