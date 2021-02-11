@@ -1,3 +1,25 @@
+/**
+ * double_stack_allocator.h -- Double Stack Allocator (also called Bump Allocator) implementation
+ *
+ * Project URL: https://github.com/gilzoide/c-allocators
+ *
+ * Do this:
+ *    #define DOUBLE_STACK_ALLOCATOR_IMPLEMENTATION
+ * before you include this file in *one* C or C++ file to create the implementation.
+ *
+ * i.e.:
+ *   #include ...
+ *   #include ...
+ *   #define DOUBLE_STACK_ALLOCATOR_IMPLEMENTATION
+ *   #include "double_stack_allocator.h"
+ *
+ * Optionally provide the following defines with your own implementations:
+ *
+ * DSA_MALLOC(size)  - your own malloc function (default: malloc(size))
+ * DSA_FREE(p)       - your own free function (default: free(p))
+ * DSA_STATIC        - if defined and DSA_DECL is not defined, functions will be declared `static` instead of `extern`
+ * DSA_DECL          - function declaration prefix (default: `extern` or `static` depending on DSA_STATIC)
+ */
 #ifndef DOUBLE_STACK_ALLOCATOR_H
 #define DOUBLE_STACK_ALLOCATOR_H
 

@@ -1,3 +1,26 @@
+/**
+ * stack_allocator.h -- Simple Stack Allocator (also called Bump Allocator) implementation
+ *
+ * Project URL: https://github.com/gilzoide/c-allocators
+ *
+ * Do this:
+ *    #define STACK_ALLOCATOR_IMPLEMENTATION
+ * before you include this file in *one* C or C++ file to create the implementation.
+ *
+ * i.e.:
+ *   #include ...
+ *   #include ...
+ *   #define STACK_ALLOCATOR_IMPLEMENTATION
+ *   #include "stack_allocator.h"
+ *
+ * Optionally provide the following defines with your own implementations:
+ *
+ * SA_MALLOC(size)  - your own malloc function (default: malloc(size))
+ * SA_FREE(p)       - your own free function (default: free(p))
+ * SA_STATIC        - if defined and SA_DECL is not defined, functions will be declared `static` instead of `extern`
+ * SA_DECL          - function declaration prefix (default: `extern` or `static` depending on SA_STATIC)
+ */
+
 #ifndef STACK_ALLOCATOR_H
 #define STACK_ALLOCATOR_H
 
