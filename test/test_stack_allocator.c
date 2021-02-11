@@ -1,3 +1,4 @@
+#define STACK_ALLOCATOR_IMPLEMENTATION
 #include "stack_allocator.h"
 
 #include <criterion/criterion.h>
@@ -5,8 +6,8 @@
 Test(stack_allocator, initialization) {
 	int capacity = 16;
 
-	stack_allocator allocator;
-	cr_assert(sa_init_with_size(&allocator, capacity));
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, capacity));
 
 	cr_assert_eq(allocator.capacity, capacity);
 	cr_assert_eq(sa_available_memory(&allocator), capacity);
@@ -20,8 +21,8 @@ Test(stack_allocator, initialization) {
 }
 
 Test(stack_allocator, empty) {
-	stack_allocator allocator;
-	cr_assert(sa_init_with_size(&allocator, 0));
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, 0));
 
 	void *ptr;
 	ptr = sa_alloc(&allocator, 1);
@@ -39,8 +40,8 @@ Test(stack_allocator, empty) {
 Test(stack_allocator, full_usage) {
 	int capacity = 16;
 
-	stack_allocator allocator;
-	cr_assert(sa_init_with_size(&allocator, capacity));
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, capacity));
 
 	void *ptr;
 	ptr = sa_alloc(&allocator, capacity);
@@ -53,7 +54,7 @@ Test(stack_allocator, full_usage) {
 	ptr = sa_alloc(&allocator, 0);
 	cr_assert_not_null(ptr);
 
-	sa_free(&allocator);
+	sa_clear(&allocator);
 	cr_assert_eq(sa_available_memory(&allocator), capacity);
 	cr_assert_eq(sa_used_memory(&allocator), 0);
 
@@ -64,8 +65,8 @@ Test(stack_allocator, partial_usage) {
 	int capacity = 16;
 	int alloc_size = 4;
 
-	stack_allocator allocator;
-	cr_assert(sa_init_with_size(&allocator, capacity));
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, capacity));
 
 	void *ptr;
 	ptr = sa_alloc(&allocator, alloc_size);
@@ -85,11 +86,11 @@ Test(stack_allocator, partial_usage) {
 	ptr = sa_alloc(&allocator, 0);
 	cr_assert_not_null(ptr);
 
-	sa_free_marker(&allocator, marker);
+	sa_clear_marker(&allocator, marker);
 	cr_assert_eq(sa_available_memory(&allocator), capacity - alloc_size);
 	cr_assert_eq(sa_used_memory(&allocator), alloc_size);
 
-	sa_free(&allocator);
+	sa_clear(&allocator);
 	cr_assert_eq(sa_available_memory(&allocator), capacity);
 	cr_assert_eq(sa_used_memory(&allocator), 0);
 
@@ -100,8 +101,8 @@ Test(stack_allocator, peek) {
 	int capacity = 16;
 	int alloc_size = 4;
 
-	stack_allocator allocator;
-	cr_assert(sa_init_with_size(&allocator, capacity));
+	sa_stack_allocator allocator;
+	cr_assert(sa_init_with_capacity(&allocator, capacity));
 
 	void *first_ptr = sa_alloc(&allocator, alloc_size);
 	cr_assert_not_null(first_ptr);
