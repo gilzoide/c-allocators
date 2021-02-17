@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6...3.19)
 
-cmake_policy(SET CMP0048 NEW)
-project(c-allocators VERSION "0.1.0")
+project(c-allocators)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
