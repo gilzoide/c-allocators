@@ -209,6 +209,7 @@ Test(dsa_double_stack_allocator, foreach) {
     DSA_FOREACH_TOP_REVERSE(int, number, &allocator) {
         i--;
         cr_assert_eq(*number, i);
+        dsa_pop_top_(&allocator, int);
     }
     cr_assert_eq(i, 0);
 }

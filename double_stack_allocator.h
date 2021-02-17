@@ -233,7 +233,19 @@ DSA_DECL void *dsa_peek_top(dsa_double_stack_allocator *memory, size_t size);
 /// Get the quantity of free memory available in a Double Stack Allocator
 DSA_DECL size_t dsa_available_memory(dsa_double_stack_allocator *memory);
 
-/// Get the quantity of used memory in a Double Stack Allocator
+/// Get the quantity of memory allocated on bottom of a Double Stack Allocator
+DSA_DECL size_t dsa_used_memory_bottom(dsa_double_stack_allocator *memory);
+/// Typed version of dsa_used_memory_bottom
+#define dsa_used_memory_bottom_(memory, type) \
+    (dsa_used_memory_bottom(memory) / sizeof(type))
+
+/// Get the quantity of memory allocated on top of a Double Stack Allocator
+DSA_DECL size_t dsa_used_memory_top(dsa_double_stack_allocator *memory);
+/// Typed version of dsa_used_memory_top
+#define dsa_used_memory_top_(memory, type) \
+    (dsa_used_memory_top(memory) / sizeof(type))
+
+/// Get the total quantity of used allocated in a Double Stack Allocator
 DSA_DECL size_t dsa_used_memory(dsa_double_stack_allocator *memory);
 
 #ifdef __cplusplus
@@ -354,8 +366,16 @@ DSA_DECL size_t dsa_available_memory(dsa_double_stack_allocator *memory) {
     return memory->top - memory->bottom;
 }
 
+DSA_DECL size_t dsa_used_memory_bottom(dsa_double_stack_allocator *memory) {
+    return memory->bottom;
+}
+
+DSA_DECL size_t dsa_used_memory_top(dsa_double_stack_allocator *memory) {
+    return memory->capacity - memory->top;
+}
+
 DSA_DECL size_t dsa_used_memory(dsa_double_stack_allocator *memory) {
-    return memory->bottom + (memory->capacity - memory->top);
+    return dsa_used_memory_bottom(memory) + dsa_used_memory_top(memory);
 }
 
 #endif  // DOUBLE_STACK_ALLOCATOR_IMPLEMENTATION
